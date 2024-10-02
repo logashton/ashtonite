@@ -17,8 +17,10 @@ public:
     ~Server();
 
     void start();
-    void acceptConnection();
-    std::string receiveMessage();
+    int acceptConnection();
+    std::string receiveMessage(int clientSocket);
+    void close(int clientSocket);
+    void closeClientConnection(int clientSocket);
     void close();
 };
 

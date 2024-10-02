@@ -32,15 +32,16 @@ void Server::start() {
     std::cout << "Server listening on " << address << ":" << port << std::endl;
 }
 
-void Server::acceptConnection() {
-    clientSocket = accept(serverSocket, nullptr, nullptr);
+int Server::acceptConnection() {
+    int clientSocket = accept(serverSocket, nullptr, nullptr);
     if (clientSocket < 0) {
         throw std::runtime_error("Failed to accept connection");
     }
     std::cout << "Client connected" << std::endl;
+    return clientSocket;
 }
 
-std::string Server::receiveMessage() {
+std::string Server::receiveMessage(int clientSocket) {
     char buffer[1024] = {0};
     int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
     
@@ -49,6 +50,12 @@ std::string Server::receiveMessage() {
     }
     
     return std::string(buffer, bytesReceived);
+}
+
+void Server::closeClientConnection(int clientSocket) {
+    if (clientSocket != -1) {
+        ::close(clientSocket);
+    }
 }
 
 void Server::close() {
