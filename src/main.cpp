@@ -4,22 +4,24 @@
 #include <vector>
 
 void handleClient(Server& server, int clientSocket) {
-    std::string message;
-    while (true) {
-        message = server.receiveMessage(clientSocket);
-        
-        if (message.size() <= 0) {
-            break;
-        }
-
-        std::cout << "Message from client " << clientSocket << ": " << message << std::endl;
+    std::string request = server.receiveMessage(clientSocket);
+    
+    if (request.empty()) {
+        std::cout << "Client " << clientSocket << " disconnected" << std::endl;
+        server.closeClientConnection(clientSocket);
+        return;
     }
-    std::cout << "Client " << clientSocket << " disconnected" << std::endl;
+
+    std::cout << "Request from client " << clientSocket << ":\n" << request << std::endl;
+
+    // Just for testing
+    std::string notFoundBody = "<html><body><h1>404 Not Found</h1></body></html>";
+    server.sendHttpResponse(clientSocket, "404 Not Found", "text/html", notFoundBody);
+
     server.closeClientConnection(clientSocket);
 }
 
-int main()
-{
+int main() {
     Server server(8080, "127.0.0.1");
     std::vector<std::thread> clientThreads;
     bool serverRunning = true;

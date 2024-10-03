@@ -8,6 +8,7 @@ include_directories(include)
 set(SOURCES
     src/main.cpp
     src/server.cpp
+    src/parse.cpp
 )
 
 add_executable(ashtonite ${SOURCES})

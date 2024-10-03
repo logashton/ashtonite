@@ -1,4 +1,5 @@
 #include "server.h"
+#include "parse.h"
 #include <iostream>
 #include <cstring>
 #include <sys/socket.h>
@@ -48,7 +49,10 @@ std::string Server::receiveMessage(int clientSocket) {
     if (bytesReceived <= 0) {
         return "";
     }
-    
+
+    std::string headers(buffer, bytesReceived);
+    std::unordered_map<std::string, std::string> headerMap = parseHeaders(headers);
+
     return std::string(buffer, bytesReceived);
 }
 
@@ -63,4 +67,14 @@ void Server::close() {
         ::close(serverSocket);
         serverSocket = -1;
     }
+}
+
+void Server::sendHttpResponse(int clientSocket, const std::string& status, const std::string& contentType, const std::string& body) {
+    std::string response = "HTTP/1.1 " + status + "\r\n";
+    response += "Content-Type: " + contentType + "\r\n";
+    response += "Content-Length: " + std::to_string(body.length()) + "\r\n";
+    response += "\r\n";
+    response += body;
+
+    send(clientSocket, response.c_str(), response.length(), 0);
 }
